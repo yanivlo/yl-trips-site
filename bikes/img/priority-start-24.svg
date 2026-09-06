@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 200" width="320" height="200">
+  <rect width="320" height="200" fill="#f3f5f2"/>
+  <g stroke="#2e6b4f" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round">
+    <circle cx="90" cy="140" r="42"/>
+    <circle cx="230" cy="140" r="42"/>
+    <path d="M90 140 L150 80 L200 80 L230 140"/>
+    <path d="M150 80 L130 140"/>
+    <path d="M150 80 L165 55"/>
+    <path d="M200 80 L215 100"/>
+    <path d="M180 55 L150 55"/>
+  </g>
+  <circle cx="90" cy="140" r="4" fill="#2e6b4f"/>
+  <circle cx="230" cy="140" r="4" fill="#2e6b4f"/>
+  <text x="160" y="185" font-family="-apple-system,Helvetica,Arial,sans-serif" font-size="13" fill="#5c6560" text-anchor="middle">Priority Start 24</text>
+</svg>

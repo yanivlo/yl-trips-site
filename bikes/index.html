@@ -1,0 +1,291 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kids' 24" Bike Comparison</title>
+<style>
+  :root{
+    --bg:#faf9f7; --text:#1f2320; --muted:#5c6560; --border:#dfe3df;
+    --header-bg:#2f3b34; --header-text:#ffffff;
+    --cost-bg:#fff3d6; --cost-text:#5c4400;
+    --label-bg:#eef1ec;
+    --zebra:#f3f5f2;
+    --badge-bg:#dff0e6; --badge-text:#1f5c3d;
+    --link:#1a5d3a;
+    --card-bg:#ffffff;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#1b1e1c; --text:#eceeec; --muted:#a9b0ab; --border:#3a3f3b;
+      --header-bg:#3a4a41; --header-text:#ffffff;
+      --cost-bg:#4a3c15; --cost-text:#ffdf8a;
+      --label-bg:#242824;
+      --zebra:#212523;
+      --badge-bg:#234a35; --badge-text:#9fe6bf;
+      --link:#7bd1a4;
+      --card-bg:#222521;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#1b1e1c; --text:#eceeec; --muted:#a9b0ab; --border:#3a3f3b;
+    --header-bg:#3a4a41; --header-text:#ffffff;
+    --cost-bg:#4a3c15; --cost-text:#ffdf8a;
+    --label-bg:#242824;
+    --zebra:#212523;
+    --badge-bg:#234a35; --badge-text:#9fe6bf;
+    --link:#7bd1a4;
+    --card-bg:#222521;
+  }
+  body{ background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; margin:0; padding:24px 20px 60px; }
+  h1{ font-size:1.4rem; margin:0 0 4px; }
+  .sub{ color:var(--muted); font-size:0.9rem; margin:0 0 20px; }
+  .back{ display:inline-block; margin-bottom:16px; font-size:0.85rem; color:var(--link); text-decoration:none; }
+  .table-wrap{ overflow-x:auto; border:1px solid var(--border); border-radius:10px; }
+  table{ border-collapse:collapse; width:100%; min-width:640px; font-size:0.88rem; }
+  th, td{ vertical-align:top; padding:10px 12px; border-bottom:1px solid var(--border); text-align:left; }
+  thead th{ background:var(--header-bg); color:var(--header-text); position:sticky; top:0; }
+  tbody tr:nth-child(even){ background:var(--zebra); }
+  td.rowlabel, th.rowlabel{ background:var(--label-bg); font-weight:600; white-space:nowrap; }
+  tr.cost td{ background:var(--cost-bg) !important; color:var(--cost-text); font-weight:700; }
+  tr.cost td.rowlabel{ background:var(--cost-bg) !important; }
+  .badge{ display:inline-block; background:var(--badge-bg); color:var(--badge-text); padding:2px 8px; border-radius:999px; font-weight:600; font-size:0.82rem; }
+  .photolink{ display:inline-block; font-size:0.82rem; }
+  a{ color:var(--link); }
+  .info{ position:relative; display:inline-flex; align-items:center; justify-content:center; width:16px; height:16px; border-radius:50%; background:var(--muted); color:var(--bg); font-size:11px; font-weight:700; margin-left:5px; cursor:help; vertical-align:middle; }
+  .info .tip{ display:none; position:absolute; left:0; top:130%; width:230px; background:var(--card-bg); color:var(--text); border:1px solid var(--border); border-radius:8px; padding:8px 10px; font-size:0.78rem; font-weight:400; box-shadow:0 4px 14px rgba(0,0,0,.15); z-index:5; }
+  .info:hover .tip, .info:focus .tip, .info:focus-visible .tip{ display:block; }
+  section.notes{ margin-top:32px; max-width:820px; }
+  .notes-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+  .notes-head h2{ font-size:1.1rem; margin:0; }
+  #toggleAll{ font-size:0.82rem; padding:6px 12px; border-radius:999px; border:1px solid var(--border); background:var(--card-bg); color:var(--text); cursor:pointer; }
+  details{ background:var(--card-bg); border:1px solid var(--border); border-radius:10px; margin-bottom:12px; padding:2px 16px; }
+  details summary{ list-style:none; cursor:pointer; padding:12px 0; font-weight:700; display:flex; align-items:center; gap:10px; }
+  details summary::-webkit-details-marker{ display:none; }
+  .chevron{ display:inline-flex; align-items:center; justify-content:center; width:30px; height:30px; border-radius:50%; transition:transform .15s ease, background .15s ease; flex:none; }
+  .chevron svg{ width:14px; height:14px; }
+  summary:hover .chevron{ background:var(--zebra); }
+  details[open] .chevron{ transform:rotate(90deg); }
+  summary:focus-visible{ outline:2px solid var(--link); outline-offset:3px; border-radius:8px; }
+  .card-body{ padding:0 0 16px 40px; }
+  .card-body p{ margin:6px 0; }
+  .tradeoffs{ margin-top:28px; max-width:820px; padding:16px 18px; background:var(--card-bg); border:1px solid var(--border); border-radius:10px; }
+  .tradeoffs h2{ font-size:1.1rem; margin-top:0; }
+  .imgnote{ margin-top:10px; color:var(--muted); font-size:0.78rem; max-width:820px; }
+  footer{ margin-top:28px; color:var(--muted); font-size:0.78rem; max-width:820px; }
+</style>
+</head>
+<body>
+
+<a class="back" href="/">&larr; Back to home</a>
+<h1>Kids' 24" Bike Comparison</h1>
+<p class="sub">Priority Start 24 vs. REI Co-op Cycles REV CTY 24 vs. Cannondale Quick 24 — the three "Main Options" from your doc — plus the Guardian Ethos 24.</p>
+
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+<th class="rowlabel">&nbsp;</th>
+<th>Priority Start 24</th>
+<th>Co-op Cycles REV CTY 24 <span style="font-weight:400;">(REI)</span></th>
+<th>Cannondale Quick 24</th>
+<th>Guardian Ethos 24</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td class="rowlabel">Photo</td>
+<td>
+  <img src="img/priority-start-24.svg" alt="Priority Start 24 (illustration)" width="160" height="100">
+  <br><a class="photolink" href="https://www.prioritybicycles.com/products/start24" target="_blank" rel="noopener">Real photo &rarr;</a>
+</td>
+<td>
+  <img src="img/revcty-24.svg" alt="Co-op Cycles REV CTY 24 (illustration)" width="160" height="100">
+  <br><a class="photolink" href="https://www.rei.com/product/215771/co-op-cycles-rev-cty-24-kids-bike" target="_blank" rel="noopener">Real photo &rarr;</a>
+</td>
+<td>
+  <img src="img/cannondale-quick-24.svg" alt="Cannondale Quick 24 (illustration)" width="160" height="100">
+  <br><a class="photolink" href="https://www.rei.com/product/C05538/cannondale-quick-24-kids-bike" target="_blank" rel="noopener">Real photo &rarr;</a>
+</td>
+<td>
+  <img src="img/guardian-ethos-24.svg" alt="Guardian Ethos 24 (illustration)" width="160" height="100">
+  <br><a class="photolink" href="https://guardianbikes.com/products/24-inch-bike" target="_blank" rel="noopener">Real photo &rarr;</a>
+</td>
+</tr>
+<tr class="cost">
+<td class="rowlabel">Cost</td>
+<td>$469 direct (no cheaper 3rd-party listing found)</td>
+<td>$469 + ~$85 assembly/shipping + tax (per your notes — REI's exact assembly fee varies by ZIP and isn't posted publicly)</td>
+<td>$549 (REI only)</td>
+<td><span class="badge">$349 direct</span> — cheapest of the four; no other major retailer listing found</td>
+</tr>
+<tr>
+<td class="rowlabel">Buy link</td>
+<td><a href="https://www.prioritybicycles.com/products/start24" target="_blank" rel="noopener">prioritybicycles.com/products/start24</a></td>
+<td><a href="https://www.rei.com/product/215771/co-op-cycles-rev-cty-24-kids-bike" target="_blank" rel="noopener">rei.com product 215771</a></td>
+<td><a href="https://www.rei.com/product/C05538/cannondale-quick-24-kids-bike" target="_blank" rel="noopener">rei.com product C05538</a></td>
+<td><a href="https://guardianbikes.com/products/24-inch-bike" target="_blank" rel="noopener">guardianbikes.com/products/24-inch-bike</a></td>
+</tr>
+<tr>
+<td class="rowlabel">Manufacturer page</td>
+<td><a href="https://www.prioritybicycles.com/products/start24" target="_blank" rel="noopener">prioritybicycles.com</a> (sells direct, same page)</td>
+<td>Co-op is REI's house brand — REI page above is the only "manufacturer" page</td>
+<td><a href="https://www.cannondale.com/en-us/bikes/kids/7-to-12/kids-quick-7-to-12/kids-quick-24" target="_blank" rel="noopener">cannondale.com</a> — currently shows "not available in your region," so specs there couldn't be verified</td>
+<td><a href="https://guardianbikes.com/products/24-inch-bike" target="_blank" rel="noopener">guardianbikes.com</a> (sells direct, same page)</td>
+</tr>
+<tr>
+<td class="rowlabel">Reviews</td>
+<td><i>no reviews found</i> — no on-site review count, but Two Wheeling Tots' <a href="https://www.twowheelingtots.com/priority-start-24-review/" target="_blank" rel="noopener">editorial review</a> calls it "Highly Recommended"</td>
+<td><i>4.3 (14)</i> on REI's own site — small sample, but REI verifies purchases</td>
+<td><i>no reviews found</i> — 0 reviews on REI listing (matches your doc's note)</td>
+<td><span class="badge">4.8 (7,762)</span> — by far the most reviews here, but self-hosted on Guardian's own site rather than an independent retailer</td>
+</tr>
+<tr>
+<td class="rowlabel">Wheel size</td>
+<td>24 in (61 cm)</td>
+<td>24 in (61 cm)</td>
+<td>24 in (61 cm)</td>
+<td>24 in (61 cm)</td>
+</tr>
+<tr>
+<td class="rowlabel">Weight</td>
+<td><span class="badge">23.3 lb (10.6 kg)</span> — lightest of the three</td>
+<td>26 lb 1.6 oz (11.8 kg)</td>
+<td>not listed by either seller</td>
+<td>25.5 lb (11.6 kg)</td>
+</tr>
+<tr>
+<td class="rowlabel">Gears
+  <span class="info" tabindex="0">i<span class="tip">Number of selectable gear ratios. More gears = finer control on hills, but more to learn and maintain.</span></span>
+</td>
+<td><span class="badge">3-speed</span> internally-geared hub
+  <span class="info" tabindex="0">i<span class="tip">Internally geared hub: all the gear-shifting parts are sealed inside the rear wheel hub instead of an exposed derailleur, so there's less to bend, jam, or maintain.</span></span>
+</td>
+<td>21-speed (7-speed cassette &times; 3 chainrings)
+  <span class="info" tabindex="0">i<span class="tip">Cassette/chainring: the classic derailleur setup — a cluster of gears on the rear wheel (cassette) paired with multiple front sprockets (chainrings), shifted by a derailleur that moves the chain between them.</span></span>
+</td>
+<td><span class="badge">7-speed</span> derailleur cassette</td>
+<td><span class="badge">7-speed</span> grip shifter, narrower gear range (2.45–5.6 gain ratio) than the REV CTY</td>
+</tr>
+<tr>
+<td class="rowlabel">Drivetrain</td>
+<td><span class="badge">Belt drive, no chain</span> (Gates Carbon belt) — nothing to grease, won't rust or stain clothes</td>
+<td>Standard chain + derailleur (Shimano Tourney)</td>
+<td>Standard chain + derailleur</td>
+<td>Standard chain + derailleur; no derailleur hanger, so a crash is more likely to bend the frame there</td>
+</tr>
+<tr>
+<td class="rowlabel">Kickstand</td>
+<td><span class="badge">Yes, included</span></td>
+<td>No — several REI reviewers flagged this as a miss at this price</td>
+<td>Not specified by seller</td>
+<td><span class="badge">Yes, included</span></td>
+</tr>
+<tr>
+<td class="rowlabel">Brakes</td>
+<td>Dual V-pull hand brakes (rim)</td>
+<td>Linear-pull rim brakes, short-reach levers</td>
+<td>Promax V-brake (rim)</td>
+<td>SureStop&reg; linked brake — one lever activates both wheels
+  <span class="info" tabindex="0">i<span class="tip">Linked braking: a single brake lever applies both the front and rear brake together, so a young rider can't grab only the front brake and flip forward. The tradeoff (per reviewers) is one shared point of failure instead of two independent brakes.</span></span>
+</td>
+</tr>
+<tr>
+<td class="rowlabel">Rider fit</td>
+<td>Seat height 27–34.5 in (68.6–87.6 cm); inseam 25.5–29 in</td>
+<td>Rider height 4'2"–4'10" (127–147 cm)</td>
+<td>Rider height 4'1"–4'6" (124.5–137 cm) — smallest top-end fit of the three</td>
+<td>Rider height 4'1"–4'9" (124.5–145 cm); seat height 25–33 in</td>
+</tr>
+<tr>
+<td class="rowlabel">Weight limit</td>
+<td>150 lb (68 kg)</td>
+<td>not listed</td>
+<td>not listed</td>
+<td>not listed</td>
+</tr>
+<tr>
+<td class="rowlabel">Availability / notes</td>
+<td>Pre-order; code <b>RIDETIME26</b> = free shipping through 9/15 (site-wide promo as of today, different from the GREATPICK26 code in your doc, which has expired)</td>
+<td>REI stock/ship-to-store terms vary by location — check REI listing for current status</td>
+<td>Deep Teal sold out; listed as pre-order shipping within ~30 days</td>
+<td>In stock direct; ~10-minute assembly per Guardian</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p class="imgnote">The pictures above are simple illustrations (not real product photos) — I didn't want to re-host the retailers' copyrighted photography here. Each "Real photo" link opens the actual bike on the retailer's page.</p>
+
+<section class="notes">
+<div class="notes-head">
+  <h2>Product notes</h2>
+  <button id="toggleAll">Collapse all</button>
+</div>
+
+<details open>
+<summary><span class="chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 6l6 6-6 6"/></svg></span>1. Priority Start 24</summary>
+<div class="card-body">
+<p><i>Pros:</i> Belt drive means no chain grease/rust/stains; internally geared hub is simple and low-maintenance for kids; kickstand included; soft saddle and grips; three color options.</p>
+<p><i>Cons:</i> Only 3 gears — fine for neighborhood riding, limiting if the kid starts riding real hills or wants to keep pace with multi-geared friends; no on-site customer review count to gauge real-world satisfaction.</p>
+</div>
+</details>
+
+<details open>
+<summary><span class="chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 6l6 6-6 6"/></svg></span>2. Co-op Cycles REV CTY 24 (REI)</summary>
+<div class="card-body">
+<p><i>Pros:</i> 21-speed gives real range for hills and longer rides; verified REI buyer reviews (4.3/5); linear-pull brakes with short-reach levers sized for small hands.</p>
+<p><i>Cons:</i> No kickstand at this price — a recurring reviewer complaint; heaviest of the three; standard chain/derailleur needs more upkeep than the Priority's belt drive; only sold through REI, so the ~$85 assembly/shipping fee and tax add meaningfully to the sticker price.</p>
+</div>
+</details>
+
+<details open>
+<summary><span class="chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 6l6 6-6 6"/></svg></span>3. Cannondale Quick 24</summary>
+<div class="card-body">
+<p><i>Pros:</i> Recognized bike brand; 7-speed splits the difference between the other two; alloy frame.</p>
+<p><i>Cons:</i> Most expensive of the three at $549; zero reviews anywhere; smallest max rider height (4'6"), so least room to grow into; currently sold out in at least one color and on pre-order; Cannondale's own product page isn't accessible right now, so REI is the only place to verify specs.</p>
+</div>
+</details>
+
+<details open>
+<summary><span class="chevron"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 6l6 6-6 6"/></svg></span>4. Guardian Ethos 24</summary>
+<div class="card-body">
+<p><i>Pros:</i> Cheapest of the four at $349; kickstand included; linked SureStop brakes remove the "grabbed the front brake and flew over the bars" risk for new riders; by far the largest review base (7,762 ratings, 4.8 avg), which at least signals broad real-world use even if self-hosted.</p>
+<p><i>Cons:</i> Narrowest gear range of the geared bikes here, so weaker on hills than the REV CTY or Cannondale; no derailleur hanger, meaning a derailleur-side crash is more likely to damage the frame instead of a replaceable part; linked braking is a single point of failure and reviewers flag it as unsuitable for more aggressive riders; steel frame adds weight versus the aluminum competitors.</p>
+</div>
+</details>
+</section>
+
+<div class="tradeoffs">
+<h2>Tradeoffs &amp; recommendation</h2>
+<p>If low maintenance and simplicity matter most (a common ask for a kid's first geared bike), the <b>Priority Start 24</b> stands out: belt drive and an internal hub mean nothing to grease or derail, it's the lightest bike here, it's the cheapest at $469 with no hidden assembly fee, and it's the only one with a kickstand. The tradeoff is just 3 gears.</p>
+<p>If the kid will ride real hills or wants a "grown-up" multi-gear feel, the <b>REV CTY 24</b> gives the most range (21 speeds) and has the only real customer review data (4.3/5 from verified REI buyers) — but factor in REI's assembly fee and the missing kickstand, and it's the heaviest bike of the three.</p>
+<p>The <b>Cannondale Quick 24</b> is hardest to justify on the numbers alone: it's the most expensive, has zero reviews anywhere, fits the smallest range of rider heights, and its own manufacturer page couldn't be verified — REI's cache and your doc's note that it "ships to REI store only" are the only sources. Recommendation: it would need a specific reason (e.g., brand loyalty, in-hand fit at a local REI) to beat the Priority on value or the REV CTY on gearing.</p>
+<p>The <b>Guardian Ethos 24</b> wins on price ($349, $120 cheaper than the next-cheapest) and on the linked SureStop brakes, which are a genuine safety edge for a nervous or younger rider — that's likely why it also has by far the most reviews. It loses ground on gear range (narrowest here) and on crash-worthiness (no derailleur hanger, heavier steel frame). It's the strongest pick if budget and braking simplicity outweigh gearing and componentry; the Priority is the stronger pick if low maintenance and light weight matter more than price.</p>
+<p>To sharpen this further: worth adding the <b>Trek Precaliber 24</b> or <b>Trek Wahoo 24</b> from your doc's GEMINI comparison — both are 8-speed and in the same price band ($549–$600), which would test whether Cannondale holds up against more direct 8-speed competitors. Also worth an in-person test ride if any of these are stocked at a nearby REI or bike shop, since fit (seat height, standover) matters more than spec-sheet numbers for kids' bikes.</p>
+</div>
+
+<footer>
+Prices, specs, and review counts pulled from manufacturer/retailer sites on 2026-09-06 and can change — verify at checkout before buying. No affiliate or sponsored links.
+</footer>
+
+<script>
+(function(){
+  var btn = document.getElementById('toggleAll');
+  var cards = document.querySelectorAll('section.notes details');
+  function anyOpen(){
+    for (var i=0;i<cards.length;i++){ if(cards[i].open) return true; }
+    return false;
+  }
+  function sync(){ btn.textContent = anyOpen() ? 'Collapse all' : 'Expand all'; }
+  btn.addEventListener('click', function(){
+    var makeOpen = !anyOpen();
+    cards.forEach(function(c){ c.open = makeOpen; });
+    sync();
+  });
+  cards.forEach(function(c){ c.addEventListener('toggle', sync); });
+  sync();
+})();
+</script>
+
+</body>
+</html>
