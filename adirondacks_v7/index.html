@@ -100,7 +100,8 @@
      reader to guess which shape went with which word - and colour alone
      fails anyone who can't separate the hues. Same rotated-square teardrop
      as the map, shrunk, with the glyph held upright over it. */
-  .legend-pin{ position:relative; width:19px; height:19px; flex:none; }
+  .legend-pin{ position:relative; width:19px; height:19px; flex:none;
+               display:inline-block; vertical-align:-5px; }
   .legend-pin i{ position:absolute; inset:0; border-radius:50% 50% 50% 0;
                  transform:rotate(-45deg); box-sizing:border-box; }
   .legend-pin svg{ position:absolute; inset:0; margin:auto;
@@ -115,6 +116,21 @@
                  font-size:9px; font-weight:800; line-height:1; flex:none;
                  display:flex; align-items:center; justify-content:center;
                  box-sizing:border-box; }
+
+  /* ---------- Hover card ---------- */
+  /* A Leaflet tooltip rather than the browser's own `title`, so it can carry
+     the same little pin the legend and map use instead of describing it in
+     words. One line, always: the place, then how many photos, then what a
+     click will do. */
+  .leaflet-tooltip.pin-tip{ background:#0f172a; color:#e2e8f0;
+                            border:1px solid rgba(255,255,255,.16);
+                            border-radius:8px; padding:5px 9px;
+                            font-size:.72rem; font-weight:600; white-space:nowrap;
+                            box-shadow:0 5px 18px rgba(2,6,23,.6); }
+  .leaflet-tooltip.pin-tip::before{ border-top-color:#0f172a; }
+  .pin-tip .tip-photos{ color:#f9a8d4; }
+  .pin-tip .tip-more,
+  .pin-tip .tip-hint{ opacity:.6; font-weight:500; }
   .dash{ width:16px; height:0; border-top:2.5px dashed #000000; flex:none; }
   .dash-inferred{ border-top-color:#94a3b8; }
 
@@ -203,9 +219,23 @@
      only the glyph and colour vary. It leans like the hike pin because the
      two can no longer appear at one spot - anything close enough to collide
      has already merged into a single pin by then. */
-  .pin-compact.photo{ background:#9d174d; border:3px solid #f9a8d4;
+  .pin-compact.photo{ background:#9d174d; border:2px solid #f9a8d4;
                        box-shadow:0 2px 5px rgba(15,23,42,.4);
                        transform:rotate(-45deg); }
+
+  /* Photo pins are drawn SMALLER than the three place kinds. At trip scale a
+     camera says only "somebody took pictures somewhere", which is nearly
+     everywhere - lots of noise for very little story - while a house or a
+     mountain says something specific about the trip. Shrinking rather than
+     hiding keeps them findable for a reader who came to browse photos.
+     Sizes here must stay in step with PIN_GEOMETRY, which converts them into
+     the icon box and tip position Leaflet needs. */
+  .pin-compact-wrap.small{ width:44px; height:44px; }
+  .pin-compact-wrap.small .pin-compact{ left:8px; top:8px; width:28px; height:28px; }
+  .pin-compact-wrap.small .pin-compact-icon{ width:44px; height:44px; }
+  .pin-compact-wrap.small .pin-compact-icon svg{ width:17px; height:17px; }
+  .pin-compact-wrap.small .pin-photo-badge{ min-width:16px; height:16px; padding:0 4px;
+                                            font-size:9px; border-width:1.5px; }
   /* The pin whose photos the column is currently showing. */
   .pin-compact.photo.selected{ background:#be185d; border-color:#fff;
                        box-shadow:0 0 0 3px rgba(244,114,182,.4),
@@ -577,7 +607,7 @@ const TRIP = {
   "min_stop_hours": 1.0,
   "max_stop_hours": 8.0,
   "home_snapped": true,
-  "generated_at": "2026-09-07T23:48:00",
+  "generated_at": "2026-09-08T00:03:33",
   "enriched": true,
   "gaps_snapped_to_roads": true
  },
@@ -25784,19 +25814,85 @@ function refreshPinLayer(){
 function teardropHTML(kind, photoCount, extraClass){
   const badge = photoCount
     ? `<span class="pin-photo-badge">${photoCount}</span>` : '';
-  return `<div class="pin-compact-wrap">
+  const size = (PIN_GEOMETRY[kind] || {}).small ? ' small' : '';
+  return `<div class="pin-compact-wrap${size}">
             <div class="pin-compact ${kind}${extraClass ? ' ' + extraClass : ''}"></div>
             <div class="pin-compact-icon">${COMPACT_ICONS[kind]}</div>
             ${badge}
           </div>`;
 }
 
-function teardropIcon(kind, photoCount, hoverText, extraClass){
+function teardropIcon(kind, photoCount, extraClass){
+  const box = (PIN_GEOMETRY[kind] || PIN_GEOMETRY.long).box;
   return L.divIcon({
-    className:'',
-    html:`<div title="${esc(hoverText)}">${teardropHTML(kind, photoCount, extraClass)}</div>`,
-    iconSize:[60, 60], iconAnchor:COMPACT_ANCHOR[kind]
+    className:'', html: teardropHTML(kind, photoCount, extraClass),
+    iconSize:[box, box], iconAnchor:COMPACT_ANCHOR[kind]
   });
+}
+
+/* Tooltips sit above the pin's TIP, which is where Leaflet anchors them, so
+   they need lifting clear of the body that stands above it - by nearly the
+   whole icon box for a full-size pin, less for a small one. */
+function tooltipOptions(kind){
+  const box = (PIN_GEOMETRY[kind] || PIN_GEOMETRY.long).box;
+  return { direction:'top', className:'pin-tip', opacity:1,
+           offset:[0, -(box - 12)] };
+}
+
+// Full state names eat most of a one-line hover card ("Newport, Oregon
+// (Stay)"), so they are abbreviated. US-only on purpose - this project's
+// data is US - and anything not on the list passes through untouched rather
+// than being mangled by a cleverer rule.
+const STATE_ABBREVIATIONS = Object.fromEntries(
+  ('Alabama:AL,Alaska:AK,Arizona:AZ,Arkansas:AR,California:CA,Colorado:CO,' +
+   'Connecticut:CT,Delaware:DE,Florida:FL,Georgia:GA,Hawaii:HI,Idaho:ID,' +
+   'Illinois:IL,Indiana:IN,Iowa:IA,Kansas:KS,Kentucky:KY,Louisiana:LA,' +
+   'Maine:ME,Maryland:MD,Massachusetts:MA,Michigan:MI,Minnesota:MN,' +
+   'Mississippi:MS,Missouri:MO,Montana:MT,Nebraska:NE,Nevada:NV,' +
+   'New Hampshire:NH,New Jersey:NJ,New Mexico:NM,New York:NY,' +
+   'North Carolina:NC,North Dakota:ND,Ohio:OH,Oklahoma:OK,Oregon:OR,' +
+   'Pennsylvania:PA,Rhode Island:RI,South Carolina:SC,South Dakota:SD,' +
+   'Tennessee:TN,Texas:TX,Utah:UT,Vermont:VT,Virginia:VA,Washington:WA,' +
+   'West Virginia:WV,Wisconsin:WI,Wyoming:WY,District of Columbia:DC'
+  ).split(',').map(pair => pair.split(':')));
+
+const TOOLTIP_NAME_MAX_CHARS = 34;
+
+/* "Newport, Oregon, United States (Stay)" -> "Newport, OR (Stay)".
+   Keeps the first two comma-separated parts, abbreviates a part that is
+   exactly a state name, and preserves a trailing "(Stay)"/"(Hike)" marker,
+   which says what KIND of visit this was and is the last thing worth
+   dropping. */
+function shortPlaceName(name){
+  const raw = String(name || '').trim();
+  const suffix = raw.match(/\s*(\([^)]*\))\s*$/);
+  const body = suffix ? raw.slice(0, suffix.index) : raw;
+  const parts = body.split(',').map(part => part.trim()).filter(Boolean)
+    .map(part => STATE_ABBREVIATIONS[part] || part);
+  let short = parts.slice(0, 2).join(', ');
+  if (short.length > TOOLTIP_NAME_MAX_CHARS) {
+    short = short.slice(0, TOOLTIP_NAME_MAX_CHARS - 1).trimEnd() + '…';
+  }
+  return short + (suffix ? ' ' + suffix[1] : '');
+}
+
+// The same little pin the legend uses, so the card names the kind with the
+// symbol the reader already met rather than repeating it in words.
+function tooltipPin(kind){
+  return `<span class="legend-pin ${kind}"><i></i>${COMPACT_ICONS[kind]}</span>`;
+}
+
+/* One line: what this is, how many photos, and what clicking does. */
+function pinTooltipHTML(kind, name, extraPlaces, photoCount, hint){
+  const photoWord = `${photoCount} photo${photoCount === 1 ? '' : 's'}`;
+  const bits = [tooltipPin(kind)];
+  bits.push(name ? esc(shortPlaceName(name)) : photoWord);
+  if (extraPlaces > 0) bits.push(`<span class="tip-more">+${extraPlaces} more</span>`);
+  const tail = [];
+  // Skipped when the name IS the photo count, so it is never said twice.
+  if (photoCount && name) tail.push(`<span class="tip-photos">${photoWord}</span>`);
+  if (hint) tail.push(`<span class="tip-hint">${esc(hint)}</span>`);
+  return bits.join(' ') + (tail.length ? ' · ' + tail.join(' · ') : '');
 }
 
 /* What several merged pins look like: still one teardrop, wearing the glyph
@@ -25804,26 +25900,34 @@ function teardropIcon(kind, photoCount, hoverText, extraClass){
    into it. No count for the merged PLACES - see the shape-language note in
    the CSS for why silently is the right way to merge them. */
 function pinClusterIcon(cluster){
-  const present = new Set();
+  const byKind = {};
   let photoCount = 0, placeCount = 0;
   cluster.getAllChildMarkers().forEach(marker => {
     const kind = (marker.options.pane || '').replace('pins-', '');
-    present.add(kind);
+    (byKind[kind] = byKind[kind] || []).push(marker);
     photoCount += marker.photoCount || 0;
     if (kind !== 'photo') placeCount++;
   });
-  const winner = PIN_MERGE_PRIORITY.find(kind => present.has(kind)) || 'long';
-
-  // Native browser tooltip. The pin itself shows one number at most, so
-  // everything else the reader might want to know lives here.
-  const placeWord = placeCount === 1 ? 'place' : 'places';
-  const parts = [];
-  if (placeCount) parts.push(`${placeCount} ${placeWord}`);
-  if (photoCount) parts.push(`${photoCount} photos`);
-  const hover = parts.join(' and ') + ' here — click to zoom in';
-
-  return teardropIcon(winner, photoCount, hover);
+  const winner = PIN_MERGE_PRIORITY.find(kind => byKind[kind]) || 'long';
+  // The card names the leading place rather than counting anonymously:
+  // "Newport, OR (Stay) +1 more" says more than "2 places".
+  const lead = byKind[winner][0];
+  cluster.pinTooltip = pinTooltipHTML(
+    winner, lead.placeName || '', Math.max(0, placeCount - 1), photoCount,
+    'click to zoom');
+  cluster.pinKind = winner;
+  return teardropIcon(winner, photoCount);
 }
+
+/* Cluster icons are made and destroyed by the plugin as the reader zooms, so
+   their tooltips are bound on first hover rather than up front. */
+pinLayer.on('clustermouseover', event => {
+  const cluster = event.layer;
+  if (!cluster.getTooltip()) {
+    cluster.bindTooltip(cluster.pinTooltip || '', tooltipOptions(cluster.pinKind));
+  }
+  cluster.openTooltip();
+});
 
 let currentDay     = 'all';
 let hikeRule       = 'smart';    // 'smart' | 'naive'
@@ -26005,7 +26109,19 @@ const COMPACT_ICONS = {
 // compact pin points at the wrong spot on the map, not just at a slight tilt.
 // Recomputed when the teardrop grew from 34px to 38px - these numbers do not
 // survive a size change untouched.
-const COMPACT_ANCHOR = { night:[17, 53], hike:[30, 57], long:[43, 53], photo:[30, 57] };
+const COMPACT_ANCHOR = { night:[17, 53], hike:[30, 57], long:[43, 53], photo:[22, 42] };
+
+/* Icon box size and whether the pin uses the shrunk styling, per kind. The
+   photo pin's 44px box and [22,42] tip come from the same arithmetic as the
+   others, just with the smaller square: centre (22,22), tip 28/sqrt(2) =~
+   19.8px below it at a -45deg lean. Change a size in the CSS and these have
+   to change with it, or every photo pin points at the wrong spot. */
+const PIN_GEOMETRY = {
+  night: { box:60, small:false },
+  hike:  { box:60, small:false },
+  long:  { box:60, small:false },
+  photo: { box:44, small:true  }
+};
 
 function addPin(stop, pinCls, badgeCls, icon, badgeText, titleCls, durText, low){
   const compact = map.getZoom() < ICON_ZOOM_THRESHOLD;
@@ -26020,7 +26136,7 @@ function addPin(stop, pinCls, badgeCls, icon, badgeText, titleCls, durText, low)
   const marker = L.marker([stop.lat, stop.lng], {
     icon: L.divIcon({
       className:'', html,
-      iconSize: compact ? [60, 60] : null,
+      iconSize: compact ? [PIN_GEOMETRY[kind].box, PIN_GEOMETRY[kind].box] : null,
       iconAnchor: compact ? COMPACT_ANCHOR[kind] : [0, 14]
     }),
     riseOnHover:true,
@@ -26030,6 +26146,13 @@ function addPin(stop, pinCls, badgeCls, icon, badgeText, titleCls, durText, low)
     pane: `pins-${kind}`
   }).bindPopup(popupHTML(stop, titleCls, badgeCls, durText, low));
   marker.photoCount = 0;   // a stop carries no photos of its own; merging adds them
+  marker.placeName = nameOf(stop);   // read back when this pin leads a merge
+  // Only while the pin is an icon. Once it is a labelled pill the name is
+  // already on screen and a card repeating it is just in the way.
+  if (compact) {
+    marker.bindTooltip(pinTooltipHTML(kind, marker.placeName, 0, 0, ''),
+                       tooltipOptions(kind));
+  }
   stopPinMarkers.push(marker);
 }
 
@@ -26095,12 +26218,12 @@ function drawPhotoClusters(){
     bounds.push([cluster.latitude, cluster.longitude]);
     const isSelected = HAS_PHOTOS && index === selectedClusterIndex;
     const marker = L.marker([cluster.latitude, cluster.longitude], {
-      icon: teardropIcon('photo', cluster.photo_count,
-                         `${cluster.photo_count} photos here`,
-                         isSelected ? 'selected' : ''),
+      icon: teardropIcon('photo', cluster.photo_count, isSelected ? 'selected' : ''),
       riseOnHover:true,
       pane:'pins-photo' // Draw-order priority (see PIN_DRAW_ORDER).
-    }).on('click', () => selectCluster(index, 0, { openPanel:true }));
+    }).on('click', () => selectCluster(index, 0, { openPanel:true }))
+      .bindTooltip(pinTooltipHTML('photo', '', 0, cluster.photo_count, 'click to browse'),
+                   tooltipOptions('photo'));
     // Read back by pinClusterIcon(): a merged pin reports how many PHOTOS it
     // holds, not how many pins, so it needs each pin's own tally.
     marker.photoCount = cluster.photo_count;
