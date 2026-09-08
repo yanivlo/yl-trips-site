@@ -1,13 +1,13 @@
 {
  "manifest_version": 1,
  "photo_set_name": "adirondacks-2026-08",
- "generated_at_utc": "2026-09-08T00:41:10+00:00",
+ "generated_at_utc": "2026-09-08T01:19:33+00:00",
  "thumbnail_size_pixels": 240,
  "thumbnail_jpeg_quality": 60,
  "display_size_pixels": 1600,
  "display_jpeg_quality": 80,
- "window_start_timestamp": "2026-08-28 00:00",
- "window_end_timestamp": "2026-08-31 23:59:59.999999",
+ "window_start_timestamp": null,
+ "window_end_timestamp": null,
  "photos": [
   {
    "file_name": "IMG_9974.heic",
