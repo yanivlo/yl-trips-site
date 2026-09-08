@@ -1,0 +1,18 @@
+# Cloudflare Pages response headers.
+#   https://developers.cloudflare.com/pages/configuration/headers/
+# Syntax: a URL pattern, then indented "Name: value" lines. Limits are 100
+# rules and 2,000 characters per line, so this is nowhere near them.
+#
+# X-Robots-Tag does what a <meta name="robots"> tag cannot: it applies to the
+# PHOTOS too. A meta tag only exists inside HTML, so image files would still be
+# indexable without this.
+#
+#   noindex       do not list this in search results
+#   nofollow      do not follow links out of it
+#   noarchive     do not keep a cached copy
+#   nosnippet     do not show an extract in results
+#   noimageindex  do not index the images
+/*
+  X-Robots-Tag: noindex, nofollow, noarchive, nosnippet, noimageindex
+  Referrer-Policy: no-referrer
+  X-Content-Type-Options: nosniff

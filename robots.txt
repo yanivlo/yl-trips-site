@@ -1,0 +1,13 @@
+# This is a private family site. Nothing here is meant to be indexed,
+# archived, summarised, or used as training data.
+#
+# Note this file is a REQUEST, not a barrier. Well-behaved crawlers honour it;
+# nothing stops one that does not. Actual enforcement is in the Cloudflare
+# dashboard, not here - see _headers and the note in viz/RELEASE.md.
+
+# Content Signals: says what may be done with the content, not just whether it
+# may be fetched. search = building a search index, ai-input = feeding an AI
+# assistant answering in real time, ai-train = training or fine-tuning a model.
+User-agent: *
+Content-Signal: search=no, ai-train=no, ai-input=no
+Disallow: /
