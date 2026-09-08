@@ -1,5 +1,4 @@
-# This is a private family site. Nothing here is meant to be indexed,
-# archived, summarised, or used as training data.
+# Nothing here is meant to be indexed, archived, summarised, or used as training data.
 #
 # Note this file is a REQUEST, not a barrier. Well-behaved crawlers honour it;
 # nothing stops one that does not. Actual enforcement is in the Cloudflare
