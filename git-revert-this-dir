@@ -1,0 +1,12 @@
+#!/bin/csh
+
+git status
+
+echo -n "Proceed with git reverts? (y/n): "
+set confirm_push = "$<"
+
+if ( "$confirm_push" == "y" ) then
+  git reset --hard HEAD && git clean -fdx && git status
+else
+  echo "aborting"
+end
