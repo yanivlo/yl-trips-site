@@ -13,7 +13,13 @@
   .cards-container { margin-top: 40px;}
   .cards-container>h1,.cards-container>h3{ text-align:center; margin-bottom:8px; }
   p.sub{ text-align:center; color:var(--muted); margin-top:0; margin-bottom:40px; }
-  .cards{ display:flex; flex-wrap:wrap; gap:20px; justify-content:center; max-width:720px; margin:0 auto; }
+  /* A card is 280px wide plus 24px padding each side and a 1px border, so it
+     occupies 330px. Grid tracks of that size mean a row that is not full
+     starts under the first card instead of floating in the middle of the row
+     above it; auto-fit drops the unused tracks so any number of cards stays
+     centred as a block. */
+  .cards{ display:grid; grid-template-columns:repeat(auto-fit, 330px); gap:20px;
+          justify-content:center; max-width:1030px; margin:0 auto; }
   a.card{ display:block; width:280px; padding:24px; border:1px solid var(--border); border-radius:12px; background:var(--card-bg); text-decoration:none; color:var(--text); }
   a.card:hover{ border-color:var(--link); }
   a.card h2{ margin:0 0 6px; color:var(--link); font-size:1.2rem; }
@@ -26,16 +32,17 @@
 <p class="sub">Pick something to view.</p>
 <div class="cards">
   <a class="card" href="/adirondacks/">
-    <h2>Adirondacks long weekend</h2>
+    <h2>Adirondacks long weekend, Summer 2026</h2>
     <p>Interactive route + stops map</p>
   </a>
   <a class="card" href="/oregon/">
-    <h2>Oregon road trip</h2>
+    <h2>Oregon road trip, Summer 2026</h2>
     <p>Interactive route + stops map</p>
   </a>
-  <br/>
-  <br/>
-  <br/> 
+  <a class="card" href="/yellowstone/">
+    <h2>Yellowstone and Grand Teton, Summer 2025</h2>
+    <p>Photo map with estimated route</p>
+  </a>
 </div>
 </div>
 <div class="cards-container">
