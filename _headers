@@ -12,7 +12,15 @@
 #   noarchive     do not keep a cached copy
 #   nosnippet     do not show an extract in results
 #   noimageindex  do not index the images
+#
+# Referrer-Policy must NOT be "no-referrer". OpenStreetMap's tile servers
+# require a Referer header identifying the site, and serve an "Access blocked"
+# image - as HTTP 200, so nothing looks wrong in the console - in place of every
+# map tile without one. See https://wiki.openstreetmap.org/wiki/Blocked_tiles
+# "strict-origin" sends only https://yl-trips-site.pages.dev, never the trip
+# path or a photo filename. A page opened from disk over file:// sends no
+# Referer whatever this says, so its OpenStreetMap basemap stays blocked.
 /*
   X-Robots-Tag: noindex, nofollow, noarchive, nosnippet, noimageindex
-  Referrer-Policy: no-referrer
+  Referrer-Policy: strict-origin
   X-Content-Type-Options: nosniff
