@@ -2,62 +2,301 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Family Pages</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Our trips</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
-  :root{ --bg:#faf9f7; --text:#1f2320; --muted:#5c6560; --border:#dfe3df; --card-bg:#ffffff; --link:#1a5d3a; }
-  @media (prefers-color-scheme: dark){
-    :root{ --bg:#1b1e1c; --text:#eceeec; --muted:#a9b0ab; --border:#3a3f3b; --card-bg:#222521; --link:#7bd1a4; }
+  *{ margin:0; padding:0; box-sizing:border-box; }
+
+  /* Light is the default set; the dark block below overrides the same names.
+     Every colour is named here, so nothing is defined only inside the media
+     query. */
+  :root{
+    --bg:#0b1220; --surface:#131c2f; --surface-2:#0d1626;
+    --text:#f8fafc; --muted:#94a3b8;
+    --accent:#38bdf8; --line:rgba(255,255,255,.09); --grid-line:rgba(255,255,255,.10);
+    --chip-bg:rgba(255,255,255,.055);
+    --card-shadow:0 1px 2px rgba(0,0,0,.4);
+    --card-shadow-hover:0 20px 40px -18px rgba(0,0,0,.85);
+    --recorded-fg:#7dd3fc; --recorded-bg:rgba(56,189,248,.16); --recorded-line:rgba(56,189,248,.42);
+    --estimated-fg:#fcd34d; --estimated-bg:rgba(251,191,36,.14); --estimated-line:rgba(251,191,36,.36);
+    --glow-a:rgba(56,189,248,.14); --glow-b:rgba(129,140,248,.12);
   }
-  body{ background:var(--bg); color:var(--text); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; margin:0; padding:48px 20px; }
-  .cards-container { margin-top: 40px;}
-  .cards-container>h1,.cards-container>h3{ text-align:center; margin-bottom:8px; }
-  p.sub{ text-align:center; color:var(--muted); margin-top:0; margin-bottom:40px; }
-  /* A card is 280px wide plus 24px padding each side and a 1px border, so it
-     occupies 330px. Grid tracks of that size mean a row that is not full
-     starts under the first card instead of floating in the middle of the row
-     above it; auto-fit drops the unused tracks so any number of cards stays
-     centred as a block. */
-  .cards{ display:grid; grid-template-columns:repeat(auto-fit, 330px); gap:20px;
-          justify-content:center; max-width:1030px; margin:0 auto; }
-  a.card{ display:block; width:280px; padding:24px; border:1px solid var(--border); border-radius:12px; background:var(--card-bg); text-decoration:none; color:var(--text); }
-  a.card:hover{ border-color:var(--link); }
-  a.card h2{ margin:0 0 6px; color:var(--link); font-size:1.2rem; }
-  a.card p{ margin:0; color:var(--muted); font-size:0.9rem; }
+  /* Dark only, matching the trip maps a card opens into. color-scheme stops the
+     browser painting its own light backdrop behind the page. */
+  :root{ color-scheme:dark; }
+
+  html{ -webkit-text-size-adjust:100%; }
+  body{
+    background:var(--bg); color:var(--text);
+    font-family:'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+    background-image:
+      radial-gradient(900px 520px at 12% -8%, var(--glow-a), transparent 62%),
+      radial-gradient(760px 460px at 92% 4%, var(--glow-b), transparent 60%);
+    background-repeat:no-repeat;
+    min-height:100vh;
+  }
+  .wrap{ max-width:1180px; margin:0 auto; padding:0 20px 88px;
+         padding-left:max(20px, env(safe-area-inset-left));
+         padding-right:max(20px, env(safe-area-inset-right)); }
+
+  /* ---------- Header ---------- */
+  header{ padding:72px 0 40px; }
+  .eyebrow{ font-size:.72rem; font-weight:700; letter-spacing:.16em;
+            text-transform:uppercase; color:var(--accent); margin-bottom:14px; }
+  h1{ font-size:clamp(2.1rem, 6vw, 3.3rem); font-weight:800; letter-spacing:-.025em;
+      line-height:1.05; }
+  .tagline{ margin-top:14px; font-size:1.02rem; color:var(--muted); max-width:48ch;
+            line-height:1.55; }
+  .totals{ display:flex; flex-wrap:wrap; gap:8px; margin-top:24px; }
+  .totals span{ font-size:.76rem; font-weight:600; color:var(--text);
+                background:var(--chip-bg); border:1px solid var(--line);
+                border-radius:999px; padding:6px 13px; }
+
+  /* Says what the two route badges on the cards mean. */
+  .legend{ display:flex; flex-wrap:wrap; gap:8px 22px; margin-top:22px;
+           font-size:.8rem; color:var(--muted); line-height:1.5; }
+  .legend div{ display:flex; align-items:center; gap:8px; }
+
+  /* ---------- Grid ---------- */
+  .grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(290px, 1fr));
+         gap:22px; align-items:start; }
+
+  /* ---------- Card ---------- */
+  .card{
+    display:flex; flex-direction:column;
+    background:var(--surface); border:1px solid var(--line); border-radius:18px;
+    overflow:hidden; text-decoration:none; color:inherit; isolation:isolate;
+    box-shadow:var(--card-shadow);
+    transition:transform .28s cubic-bezier(.2,.7,.3,1),
+               box-shadow .28s ease, border-color .28s ease;
+  }
+  .card:hover{ transform:translateY(-4px); border-color:var(--accent);
+               box-shadow:var(--card-shadow-hover); }
+  .card:focus-visible{ outline:2px solid var(--accent); outline-offset:3px; }
+
+  .shot{ position:relative; aspect-ratio:3/2; overflow:hidden; background:var(--surface-2); }
+  .shot img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover;
+             transition:transform .6s cubic-bezier(.2,.7,.3,1); }
+  .card:hover .shot img{ transform:scale(1.05); }
+
+  /* The photos change on their own, slowly. The first is the base layer and
+     never animates; the others fade in over it and back out, so whatever is
+     showing falls back to the first photo rather than to an empty box. A card
+     with one photo simply never changes.
+
+     Over the 36s cycle: the first photo holds alone for the first 11.9s, the
+     second takes over, the third follows, and the third fades out at 34.6s to
+     hand back. The third starts rising before the second has finished falling,
+     so the first photo does not flash between them.
+
+     --stagger is a negative delay, which starts a card partway through the
+     cycle rather than making it wait, so the cards do not all turn over at the
+     same instant. Every value is inside that opening 11.9s, so each card still
+     opens on the photo you put first. Change the duration or the keyframes and
+     these have to move with it. A card added later picks one up on its own. */
+  .shot img + img{
+    opacity:0;
+    animation-duration:36s; animation-timing-function:ease-in-out;
+    animation-iteration-count:infinite; animation-delay:var(--stagger, 0s);
+  }
+  .shot img:nth-child(2){ animation-name:showSecond; }
+  .shot img:nth-child(3){ animation-name:showThird; }
+  @keyframes showSecond{ 0%,33%{opacity:0} 37%,62%{opacity:1} 66%,100%{opacity:0} }
+  @keyframes showThird{ 0%,62%{opacity:0} 68%,92%{opacity:1} 96%,100%{opacity:0} }
+  .grid .card:nth-child(5n+2){ --stagger:-3s; }
+  .grid .card:nth-child(5n+3){ --stagger:-6s; }
+  .grid .card:nth-child(5n+4){ --stagger:-9s; }
+  .grid .card:nth-child(5n+5){ --stagger:-11s; }
+
+  @media (prefers-reduced-motion:reduce){
+    .card, .shot img, .go i{ transition:none; }
+    .shot img{ animation:none; }
+    .card:hover .shot img{ transform:none; }
+  }
+
+  /* A trip with no cover photo yet: same size as every other card, filled with
+     a faint grid so it reads as a deliberate state and not a failed image. */
+  .shot.empty{ background:linear-gradient(150deg, var(--glow-a), var(--glow-b)), var(--surface-2); }
+  .shot.empty::after{
+    content:''; position:absolute; inset:0;
+    background-image:linear-gradient(var(--grid-line) 1px, transparent 1px),
+                     linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
+    background-size:30px 30px;
+    -webkit-mask-image:radial-gradient(circle at 50% 45%, #000, transparent 80%);
+    mask-image:radial-gradient(circle at 50% 45%, #000, transparent 80%);
+  }
+
+  /* The title sits under the photo, never on it. These are photographs of
+     people: text laid over them covers a face as often as not. */
+  .body{ padding:16px 16px 13px; }
+  .body h2{ font-size:1.2rem; font-weight:700; letter-spacing:-.02em; line-height:1.25; }
+  .body p{ margin-top:5px; font-size:.83rem; font-weight:500; color:var(--muted); }
+
+  .foot{ display:flex; align-items:center; gap:8px; padding:13px 15px;
+         border-top:1px solid var(--line); flex-wrap:wrap; }
+  .tag{ font-size:.72rem; font-weight:600; color:var(--muted);
+        background:var(--chip-bg); border:1px solid var(--line);
+        border-radius:999px; padding:4px 10px; white-space:nowrap; }
+
+  /* The one badge that must be readable at a glance: was the line on the map
+     recorded, or worked out from where the photos were taken? */
+  .kind{ display:inline-flex; align-items:center; gap:7px;
+         font-size:.72rem; font-weight:700; border-radius:999px;
+         padding:4px 11px 4px 9px; white-space:nowrap; }
+  .kind::before{ content:''; width:8px; height:8px; border-radius:50%; }
+  .kind.recorded{ color:var(--recorded-fg); background:var(--recorded-bg);
+                  border:1px solid var(--recorded-line); }
+  .kind.recorded::before{ background:currentColor; }
+  .kind.estimated{ color:var(--estimated-fg); background:var(--estimated-bg);
+                   border:1px solid var(--estimated-line); }
+  .kind.estimated::before{ border:2px solid currentColor; }
+
+  .go{ margin-left:auto; font-size:.76rem; font-weight:700; color:var(--accent);
+       display:flex; align-items:center; gap:6px; }
+  .go i{ font-style:normal; transition:transform .28s cubic-bezier(.2,.7,.3,1); }
+  .card:hover .go i{ transform:translateX(4px); }
+
+  /* ---------- Footer ---------- */
+  footer{ margin-top:52px; padding-top:22px; border-top:1px solid var(--line);
+          display:flex; flex-wrap:wrap; gap:18px; align-items:center;
+          font-size:.82rem; color:var(--muted); }
+  footer a{ color:var(--muted); text-decoration:none;
+            border-bottom:1px solid transparent; }
+  footer a:hover{ color:var(--text); border-bottom-color:var(--accent); }
 </style>
 </head>
 <body>
-<div class="cards-container">
-<h1>Family Pages</h1>
-<p class="sub">Pick something to view.</p>
-<div class="cards">
+<div class="wrap">
+
+<header>
+  <div class="eyebrow">Where we went</div>
+  <h1>Our trips, on the map</h1>
+  <p class="tagline">Every stop, every drive and every photo from a trip, laid out on one map you can pan through.</p>
+  <div class="totals">
+    <span>3 trips</span>
+    <span>2025 &ndash; 2026</span>
+    <span>1,681 photos</span>
+  </div>
+  <div class="legend">
+    <div><span class="kind recorded">Recorded route</span> built from recorded location history</div>
+    <div><span class="kind estimated">Estimated route</span> drawn from photo locations only</div>
+  </div>
+</header>
+
+<main class="grid">
+
   <a class="card" href="/adirondacks/">
-    <h2>Adirondacks long weekend, Summer 2026</h2>
-    <p>Interactive route + stops map</p>
+    <div class="shot">
+      <img src="covers/adirondacks-1.avif" alt="" width="900" height="600">
+      <img src="covers/adirondacks-2.avif" alt="" loading="lazy" width="900" height="600">
+      <img src="covers/adirondacks-3.avif" alt="" loading="lazy" width="900" height="600">
+    </div>
+    <div class="body">
+      <h2>Adirondacks long weekend</h2>
+      <p>28&ndash;31 August 2026 &middot; 4 days</p>
+    </div>
+    <div class="foot">
+      <span class="kind recorded">Recorded route</span>
+      <span class="tag">168 photos</span>
+      <span class="go">Open map <i>&rarr;</i></span>
+    </div>
   </a>
+
   <a class="card" href="/oregon/">
-    <h2>Oregon road trip, Summer 2026</h2>
-    <p>Interactive route + stops map</p>
+    <div class="shot">
+      <img src="covers/oregon-1.avif" alt="" width="900" height="600">
+      <img src="covers/oregon-2.avif" alt="" loading="lazy" width="900" height="600">
+      <img src="covers/oregon-3.avif" alt="" loading="lazy" width="900" height="600">
+    </div>
+    <div class="body">
+      <h2>Oregon road trip</h2>
+      <p>27 June &ndash; 6 July 2026 &middot; 10 days</p>
+    </div>
+    <div class="foot">
+      <span class="kind recorded">Recorded route</span>
+      <span class="tag">983 photos</span>
+      <span class="go">Open map <i>&rarr;</i></span>
+    </div>
   </a>
+
   <a class="card" href="/yellowstone/">
-    <h2>Yellowstone and Grand Teton, Summer 2025</h2>
-    <p>Photo map with estimated route</p>
+    <div class="shot">
+      <img src="covers/yellowstone-1.avif" alt="" width="900" height="600">
+      <img src="covers/yellowstone-2.avif" alt="" loading="lazy" width="900" height="600">
+      <img src="covers/yellowstone-3.avif" alt="" loading="lazy" width="900" height="600">
+    </div>
+    <div class="body">
+      <h2>Yellowstone &amp; Grand Teton</h2>
+      <p>26 June &ndash; 3 July 2025 &middot; 8 days</p>
+    </div>
+    <div class="foot">
+      <span class="kind estimated">Estimated route</span>
+      <span class="tag">530 photos</span>
+      <span class="go">Open map <i>&rarr;</i></span>
+    </div>
   </a>
-</div>
-</div>
-<div class="cards-container">
-<h3>Older versions</h1>
-<!-- <p class="sub">before adding images to the trip views.</p> -->
-<div class="cards">
-  <a class="card" href="/adirondacks_v1/">
-    <h2>Adirondacks long weekend - V1 no photos</h2>
-    <p>Interactive route + stops map</p>
-  </a>
-  <a class="card" href="/oregon_v1/">
-    <h2>Oregon road trip - V1 no photos</h2>
-    <p>Interactive route + stops map</p>
-  </a>
-</div>
+
+  <!-- ===================================================================
+       ADDING A TRIP - copy one block below, paste it above this comment.
+
+       Newest first. Update the three counts in .totals when you add one.
+
+       Route badge: class "recorded" when the map is built from logged
+       location history, class "estimated" when the line is worked out from
+       where the photos were taken. Keep the wording as it is - the legend
+       at the top of the page explains those two words and nothing else.
+
+       WITH PHOTOS. One <img> is enough; a second and third fade in and out
+       on their own, on a slow loop. Make the files with:
+           python3 release/make_card_covers.py --help
+       which writes 900px-wide covers into the site's covers/ directory.
+
+    <a class="card" href="/SLUG/">
+      <div class="shot">
+        <img src="covers/SLUG-1.avif" alt="" width="900" height="600">
+        <img src="covers/SLUG-2.avif" alt="" loading="lazy" width="900" height="600">
+        <img src="covers/SLUG-3.avif" alt="" loading="lazy" width="900" height="600">
+      </div>
+      <div class="body">
+        <h2>Trip name</h2>
+        <p>1&ndash;9 July 2027 &middot; 9 days</p>
+      </div>
+      <div class="foot">
+        <span class="kind recorded">Recorded route</span>
+        <span class="tag">123 photos</span>
+        <span class="go">Open map <i>&rarr;</i></span>
+      </div>
+    </a>
+
+       WITHOUT PHOTOS. The same card with no <img> tags and "empty" added to
+       the .shot, which draws a patterned panel the same size instead. Drop
+       the photo-count chip too.
+
+    <a class="card" href="/SLUG/">
+      <div class="shot empty"></div>
+      <div class="body">
+        <h2>Trip name</h2>
+        <p>1&ndash;9 July 2027 &middot; 9 days</p>
+      </div>
+      <div class="foot">
+        <span class="kind recorded">Recorded route</span>
+        <span class="go">Open map <i>&rarr;</i></span>
+      </div>
+    </a>
+
+       =================================================================== -->
+
+</main>
+
+<footer>
+  <span>Private family pages.</span>
+  <a href="/versions/">All versions</a>
+</footer>
+
 </div>
 </body>
 </html>
