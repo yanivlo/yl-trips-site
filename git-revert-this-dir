@@ -9,4 +9,4 @@ if ( "$confirm_push" == "y" ) then
   git reset --hard HEAD && git clean -fdx && git status
 else
   echo "aborting"
-end
+endif
