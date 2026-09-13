@@ -21,8 +21,16 @@
     --chip-bg:rgba(255,255,255,.055);
     --card-shadow:0 1px 2px rgba(0,0,0,.4);
     --card-shadow-hover:0 20px 40px -18px rgba(0,0,0,.85);
-    --recorded-fg:#7dd3fc; --recorded-bg:rgba(56,189,248,.16); --recorded-line:rgba(56,189,248,.42);
-    --estimated-fg:#fcd34d; --estimated-bg:rgba(251,191,36,.14); --estimated-line:rgba(251,191,36,.36);
+    /* Badges carry no colour of their own. What separates them is the marker
+       and the word, so they still read the same to anyone who cannot tell two
+       hues apart, and over a photo of any colour. */
+    --badge-fg:#eef3fa; --badge-bg:rgba(255,255,255,.10); --badge-line:rgba(255,255,255,.30);
+    --badge-dim-fg:#a8b4c5; --badge-dim-line:rgba(255,255,255,.20);
+    /* Stopwatch outline: body, crown bar and stem, hand. Used as a mask and
+       not as a picture, so it is painted in whatever colour its badge uses.
+       A stopwatch from a font is a colour emoji on most machines, which these
+       badges are not. */
+    --stopwatch:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round'%3E%3Ccircle cx='12' cy='14.5' r='7'/%3E%3Cpath d='M9.5 3h5M12 3.5v3.5M12 14.5V10.5'/%3E%3C/svg%3E");
     --glow-a:rgba(56,189,248,.14); --glow-b:rgba(129,140,248,.12);
   }
   /* Dark only, matching the trip maps a card opens into. color-scheme stops the
@@ -65,6 +73,13 @@
   .grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(290px, 1fr));
          gap:22px; align-items:start; }
 
+  /* Heading over the second grid, the trips with no map yet. */
+  .section-head{ margin:48px 0 20px; display:flex; flex-wrap:wrap;
+                 align-items:baseline; gap:6px 14px;
+                 padding-top:24px; border-top:1px solid var(--line); }
+  .section-head h2{ font-size:1.12rem; font-weight:700; letter-spacing:-.015em; }
+  .section-head p{ font-size:.84rem; color:var(--muted); }
+
   /* ---------- Card ---------- */
   .card{
     display:flex; flex-direction:column;
@@ -77,6 +92,21 @@
   .card:hover{ transform:translateY(-4px); border-color:var(--accent);
                box-shadow:var(--card-shadow-hover); }
   .card:focus-visible{ outline:2px solid var(--accent); outline-offset:3px; }
+
+  /* Pick-these-first cards: the border is lit all the time, not only on hover,
+     so they stand out while the page is just sitting there. Brightness rather
+     than colour, to match the badges. */
+  .card.featured{ border-color:rgba(255,255,255,.34);
+                  box-shadow:0 0 0 1px rgba(255,255,255,.07),
+                             0 14px 34px -24px rgba(255,255,255,.45),
+                             var(--card-shadow); }
+  .card.featured:hover{ box-shadow:0 0 0 1px rgba(255,255,255,.14), var(--card-shadow-hover); }
+
+  /* A trip that is listed but has no map yet. Not a link, so nothing here may
+     look clickable: no lift, no arrow, no pointer. */
+  .card.soon{ cursor:default; opacity:.82; }
+  .card.soon:hover{ transform:none; border-color:var(--line);
+                    box-shadow:var(--card-shadow); }
 
   .shot{ position:relative; aspect-ratio:3/2; overflow:hidden; background:var(--surface-2); }
   .shot img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover;
@@ -143,17 +173,62 @@
         border-radius:999px; padding:4px 10px; white-space:nowrap; }
 
   /* The one badge that must be readable at a glance: was the line on the map
-     recorded, or worked out from where the photos were taken? */
-  .kind{ display:inline-flex; align-items:center; gap:7px;
+     recorded, or worked out from where the photos were taken? The mark in
+     front answers it. Every mark is drawn in the current text colour, so the
+     badges stay monochrome and still differ at a glance. */
+  .kind{ display:inline-flex; align-items:center; gap:6px;
          font-size:.72rem; font-weight:700; border-radius:999px;
-         padding:4px 11px 4px 9px; white-space:nowrap; }
-  .kind::before{ content:''; width:8px; height:8px; border-radius:50%; }
-  .kind.recorded{ color:var(--recorded-fg); background:var(--recorded-bg);
-                  border:1px solid var(--recorded-line); }
-  .kind.recorded::before{ background:currentColor; }
-  .kind.estimated{ color:var(--estimated-fg); background:var(--estimated-bg);
-                   border:1px solid var(--estimated-line); }
-  .kind.estimated::before{ border:2px solid currentColor; }
+         padding:4px 11px 4px 9px; white-space:nowrap;
+         color:var(--badge-fg); background:var(--badge-bg);
+         border:1px solid var(--badge-line); }
+  .kind::before{ display:inline-flex; align-items:center; justify-content:center;
+                 line-height:1; flex:none; }
+
+  /* Logged, so: a tick. */
+  .kind.recorded::before{ content:'\2713'; font-size:.95em; font-weight:900; }
+
+  /* Worked out rather than logged, so: an exclamation mark in a ring. */
+  .kind.estimated::before{ content:'!'; width:13px; height:13px; border-radius:50%;
+                           border:1.5px solid currentColor;
+                           font-size:.7em; font-weight:900;
+                           padding-bottom:.5px; }
+
+  /* Listed, but there is nothing to open yet. The only badge such a card
+     carries, and the one kind that stays in the footer row. Dimmer, with a
+     broken edge, so an unfinished trip does not read as a finished one. */
+  .kind.soon{ color:var(--badge-dim-fg); border-style:dashed;
+              border-color:var(--badge-dim-line); }
+  .kind.soon::before{ content:''; width:13px; height:13px;
+                      background:currentColor;
+                      -webkit-mask:var(--stopwatch) center/contain no-repeat;
+                      mask:var(--stopwatch) center/contain no-repeat; }
+
+  /* The chips that sit over the photo, as one row starting at the top left:
+     "Featured" first where a card has it, then the route badge. A row rather
+     than two placed corners, so the route badge follows "Featured" along and
+     falls back to the left edge on a card that has none. Put the row last
+     inside .shot, so it paints over whichever image is showing. */
+  .shot .chips{ position:absolute; z-index:2; top:11px; left:11px; right:11px;
+                display:flex; flex-wrap:wrap; gap:7px; }
+
+  /* Over a photo the badges need a dark pane behind them, whatever the photo
+     is doing. Frosted rather than solid, so the picture still shows through.
+     This must stay below .kind, whose background shorthand would otherwise
+     wipe the pane out. */
+  .shot .kind{ background-image:linear-gradient(rgba(8,14,28,.58), rgba(8,14,28,.58));
+               box-shadow:0 3px 14px rgba(0,0,0,.35);
+               -webkit-backdrop-filter:blur(9px) saturate(150%);
+               backdrop-filter:blur(9px) saturate(150%); }
+
+  .flag{ display:inline-flex; align-items:center; gap:6px;
+         font-size:.71rem; font-weight:700; letter-spacing:.03em;
+         color:#fff; background:rgba(15,23,42,.42);
+         border:1px solid rgba(255,255,255,.42); border-radius:999px;
+         padding:5px 12px 5px 10px; white-space:nowrap;
+         box-shadow:0 3px 14px rgba(0,0,0,.35);
+         -webkit-backdrop-filter:blur(9px) saturate(150%);
+         backdrop-filter:blur(9px) saturate(150%); }
+  .flag::before{ content:'\2605'; font-size:.85em; line-height:1; }
 
   .go{ margin-left:auto; font-size:.76rem; font-weight:700; color:var(--accent);
        display:flex; align-items:center; gap:6px; }
@@ -189,35 +264,41 @@
 
 <main class="grid">
 
-  <a class="card" href="/adirondacks/">
+  <a class="card featured" href="/adirondacks/">
     <div class="shot">
       <img src="covers/adirondacks-1.avif" alt="" width="900" height="600">
       <img src="covers/adirondacks-2.avif" alt="" loading="lazy" width="900" height="600">
       <img src="covers/adirondacks-3.avif" alt="" loading="lazy" width="900" height="600">
+      <div class="chips">
+        <span class="flag">Featured</span>
+        <span class="kind recorded">Recorded route</span>
+      </div>
     </div>
     <div class="body">
       <h2>Adirondacks long weekend</h2>
       <p>28&ndash;31 August 2026 &middot; 4 days</p>
     </div>
     <div class="foot">
-      <span class="kind recorded">Recorded route</span>
       <span class="tag">168 photos</span>
       <span class="go">Open map <i>&rarr;</i></span>
     </div>
   </a>
 
-  <a class="card" href="/oregon/">
+  <a class="card featured" href="/oregon/">
     <div class="shot">
       <img src="covers/oregon-1.avif" alt="" width="900" height="600">
       <img src="covers/oregon-2.avif" alt="" loading="lazy" width="900" height="600">
       <img src="covers/oregon-3.avif" alt="" loading="lazy" width="900" height="600">
+      <div class="chips">
+        <span class="flag">Featured</span>
+        <span class="kind recorded">Recorded route</span>
+      </div>
     </div>
     <div class="body">
       <h2>Oregon road trip</h2>
       <p>27 June &ndash; 6 July 2026 &middot; 10 days</p>
     </div>
     <div class="foot">
-      <span class="kind recorded">Recorded route</span>
       <span class="tag">983 photos</span>
       <span class="go">Open map <i>&rarr;</i></span>
     </div>
@@ -228,13 +309,15 @@
       <img src="covers/yellowstone-1.avif" alt="" width="900" height="600">
       <img src="covers/yellowstone-2.avif" alt="" loading="lazy" width="900" height="600">
       <img src="covers/yellowstone-3.avif" alt="" loading="lazy" width="900" height="600">
+      <div class="chips">
+        <span class="kind estimated">Estimated route</span>
+      </div>
     </div>
     <div class="body">
       <h2>Yellowstone &amp; Grand Teton</h2>
       <p>26 June &ndash; 3 July 2025 &middot; 8 days</p>
     </div>
     <div class="foot">
-      <span class="kind estimated">Estimated route</span>
       <span class="tag">530 photos</span>
       <span class="go">Open map <i>&rarr;</i></span>
     </div>
@@ -245,13 +328,15 @@
       <img src="covers/washington-dc-2023-1.avif" alt="" width="900" height="600">
       <img src="covers/washington-dc-2023-2.avif" alt="" loading="lazy" width="900" height="600">
       <img src="covers/washington-dc-2023-3.avif" alt="" loading="lazy" width="900" height="600">
+      <div class="chips">
+        <span class="kind estimated">Estimated route</span>
+      </div>
     </div>
     <div class="body">
       <h2>Washington, D.C.</h2>
       <p>28&ndash;30 December 2023 &middot; 3 days</p>
     </div>
     <div class="foot">
-      <span class="kind estimated">Estimated route</span>
       <span class="tag">258 photos</span>
       <span class="go">Open map <i>&rarr;</i></span>
     </div>
@@ -265,7 +350,8 @@
        Route badge: class "recorded" when the map is built from logged
        location history, class "estimated" when the line is worked out from
        where the photos were taken. Keep the wording as it is - the legend
-       at the top of the page explains those two words and nothing else.
+       at the top of the page explains those two words and nothing else. It
+       goes in the .chips row inside the .shot, and floats over the picture.
 
        WITH PHOTOS. One <img> is enough; a second and third fade in and out
        on their own, on a slow loop. Make the files with:
@@ -277,13 +363,15 @@
         <img src="covers/SLUG-1.avif" alt="" width="900" height="600">
         <img src="covers/SLUG-2.avif" alt="" loading="lazy" width="900" height="600">
         <img src="covers/SLUG-3.avif" alt="" loading="lazy" width="900" height="600">
+        <div class="chips">
+          <span class="kind recorded">Recorded route</span>
+        </div>
       </div>
       <div class="body">
         <h2>Trip name</h2>
         <p>1&ndash;9 July 2027 &middot; 9 days</p>
       </div>
       <div class="foot">
-        <span class="kind recorded">Recorded route</span>
         <span class="tag">123 photos</span>
         <span class="go">Open map <i>&rarr;</i></span>
       </div>
@@ -294,20 +382,146 @@
        the photo-count chip too.
 
     <a class="card" href="/SLUG/">
-      <div class="shot empty"></div>
+      <div class="shot empty">
+        <div class="chips">
+          <span class="kind recorded">Recorded route</span>
+        </div>
+      </div>
       <div class="body">
         <h2>Trip name</h2>
         <p>1&ndash;9 July 2027 &middot; 9 days</p>
       </div>
       <div class="foot">
-        <span class="kind recorded">Recorded route</span>
         <span class="go">Open map <i>&rarr;</i></span>
       </div>
     </a>
 
+       PICK THIS ONE OUT. Add "featured" to the card and put the flag first in
+       the .chips row, ahead of the route badge:
+
+           <a class="card featured" href="/SLUG/">
+             <div class="shot">
+               <img ...>
+               <div class="chips">
+                 <span class="flag">Featured</span>
+                 <span class="kind recorded">Recorded route</span>
+               </div>
+             </div>
+
        =================================================================== -->
 
 </main>
+
+<div class="section-head">
+  <h2>Coming soon</h2>
+  <p>Trips on the list, not yet on the map.</p>
+</div>
+
+<!-- No map for these yet, so each one is a <div> and not a link: no photos, no
+     photo count, no "Open map". When a trip's map goes live, move its block up
+     into the grid above and turn it into an <a class="card" href="/SLUG/">. -->
+<section class="grid">
+
+  <div class="card soon">
+    <div class="shot empty"></div>
+    <div class="body">
+      <h2>Cleveland</h2>
+      <p>2018</p>
+    </div>
+    <div class="foot">
+      <span class="kind soon">Coming soon</span>
+    </div>
+  </div>
+
+  <div class="card soon">
+    <div class="shot empty"></div>
+    <div class="body">
+      <h2>San Francisco, CA</h2>
+      <p>March 2018</p>
+    </div>
+    <div class="foot">
+      <span class="kind soon">Coming soon</span>
+    </div>
+  </div>
+
+  <div class="card soon">
+    <div class="shot empty"></div>
+    <div class="body">
+      <h2>Vermont</h2>
+      <p>Spring 2023</p>
+    </div>
+    <div class="foot">
+      <span class="kind soon">Coming soon</span>
+    </div>
+  </div>
+
+  <div class="card soon">
+    <div class="shot empty"></div>
+    <div class="body">
+      <h2>Zion, Bryce &amp; Grand Canyon</h2>
+      <p>Spring 2023</p>
+    </div>
+    <div class="foot">
+      <span class="kind soon">Coming soon</span>
+    </div>
+  </div>
+
+  <div class="card soon">
+    <div class="shot empty"></div>
+    <div class="body">
+      <h2>Vermont &amp; Maine</h2>
+      <p>Summer 2023</p>
+    </div>
+    <div class="foot">
+      <span class="kind soon">Coming soon</span>
+    </div>
+  </div>
+
+  <div class="card soon">
+    <div class="shot empty"></div>
+    <div class="body">
+      <h2>California &amp; Yosemite</h2>
+      <p>Spring 2024</p>
+    </div>
+    <div class="foot">
+      <span class="kind soon">Coming soon</span>
+    </div>
+  </div>
+
+  <div class="card soon">
+    <div class="shot empty"></div>
+    <div class="body">
+      <h2>Minerva, NY</h2>
+      <p>Summer 2024</p>
+    </div>
+    <div class="foot">
+      <span class="kind soon">Coming soon</span>
+    </div>
+  </div>
+
+  <div class="card soon">
+    <div class="shot empty"></div>
+    <div class="body">
+      <h2>Vermont</h2>
+      <p>Summer 2025</p>
+    </div>
+    <div class="foot">
+      <span class="kind soon">Coming soon</span>
+    </div>
+  </div>
+
+  <div class="card soon">
+    <div class="shot empty"></div>
+    <div class="body">
+      <h2>West Virginia</h2>
+      <p>Spring 2026</p>
+    </div>
+    <div class="foot">
+      <span class="kind soon">Coming soon</span>
+    </div>
+  </div>
+
+</section>
 
 <footer>
   <span>Private family pages.</span>
